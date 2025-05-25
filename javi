@@ -1,1 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+struct grades_info {
+    
+    float Programming;
+    float Purposive_com;
+    float U_S;
+};
+
+
+ struct student_info {
+    char name[100];
+    int id;
+    struct grades_info grades;
+    float average;
+};
+
+
+
+
+
+void student_name ( struct student_info *student) {
+    
+    int len;
+    int loop1 = 1;
+    int loop2 = 1;
+    char temp [10];
+    
+    while (loop1) {
+        
+        printf("    Please enter your full name: ");
+        fgets(student->name, sizeof(student->name), stdin);
+        
+        len = strlen(student->name) -1;
+        
+        if (student->name[len] == '\n') {
+            student->name[len] = '\0'; 
+        }
+        
+        printf("\n    you entered the name  :%s    correct?", student->name);
+        printf(" (y/n)\n");
+        fgets(temp, sizeof(temp), stdin);
+        
+        if(temp[0] == 'Y' || temp[0] == 'y') {
+            loop1 --;
+        }
+
+        if(len == 0) {
+           printf("\n==[Please re-enter your name]==\n\n\n");
+        }
+    }
+}
+
+void student_number ( struct student_info *student) {
+    
+    int loop = 1;
+    
+    while (loop) {
+    printf("    Please enter your id number: ");
+    scanf(" %d", &student->id);
+    getchar();
+    
+    
+    if(student->id <= 0) {
+        printf("\n==[Please re-enter id number]==\n\n\n");
+    } 
+    
+    if (student->id >0) {
+        break;
+    }
+    
+    }
+}
+
+void input_grades(struct student_info *student) {
+    printf("\nPLease enter your grades for the following subjects:\n");
+
+    printf("    Computer Programming: ");
+    scanf("%f", &student->grades.Programming);
+    getchar();
+
+    printf("    Purposive Communication: ");
+    scanf("%f", &student->grades.Purposive_com);
+    getchar();
+
+    printf("    Understanding Self (U_S): ");
+    scanf("%f", &student->grades.U_S);
+    getchar();
+
+    student->average = (student->grades.Programming +
+                        student->grades.Purposive_com +
+                        student->grades.U_S) / 3.0f;
+}
+
+
+int main() {
+    
+    int count = 0;
+    int move = 0;
+    char confirm [10];
+    
+    struct student_info *student = NULL;
+    
+    
+    do {
+    student = realloc(student, (count + 1) * sizeof(struct student_info));
+    
+    student_name(&student[move]);
+    student_number(&student[move]);
+    input_grades(&student[move]);
+    
+    count++;
+    move++;
+    
+    printf("\n\n    Add another student? (y/n): \n");
+    fgets(confirm, sizeof(confirm), stdin);
+    
+    printf("\n\n    Name entered: %s\n", student[move - 1].name);
+    printf("    id number entered: %d\n", student[move - 1].id);
+    
+    } while ( confirm[0] == 'Y' || confirm[0] == 'y');
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    return 0;
+}
 
