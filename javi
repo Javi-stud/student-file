@@ -1,1 +1,230 @@
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct grades_info {
+    float Programming;
+    float Purposive_com;
+    float U_S;
+};
+
+struct student_info {
+    char name[100];
+    int id;
+    struct grades_info grades;
+    float average;
+};
+
+void student_name(struct student_info *student) {
+    int len;
+    int loop1 = 1;
+    char temp[10];
+    
+    while (loop1) {
+        printf("\nPlease enter your full name: ");
+        fgets(student->name, sizeof(student->name), stdin);
+        len = strlen(student->name) - 1;
+
+        if (student->name[len] == '\n') {
+            student->name[len] = '\0';
+        }
+        
+        printf("\nYou entered the name: %s correct?", student->name);
+        printf(" (y/n)\n");
+        fgets(temp, sizeof(temp), stdin);
+
+        if (temp[0] == 'Y' || temp[0] == 'y') {
+            loop1--;
+        }
+        if (len == 0) {
+            printf("\n==[Please re-enter your name]==\n\n\n");
+        }
+    }
+}
+
+void student_number(struct student_info *student) {
+    int loop = 1;
+
+    while (loop) {
+        printf("Please enter your ID number: ");
+        scanf(" %d", &student->id);
+        getchar();
+
+        if (student->id <= 0) {
+            printf("\n==[Please re-enter ID number]==\n\n\n"); 
+        } else {
+            break;
+        }
+    }
+}
+
+void input_grades(struct student_info *student) {
+    printf("\nPlease enter your grades for the following subjects:\n");
+
+    printf("    Computer Programming: ");
+    scanf("%f", &student->grades.Programming);
+    getchar();
+
+    printf("    Purposive Communication: ");
+    scanf("%f", &student->grades.Purposive_com);
+    getchar();
+
+    printf("    Understanding Self (U_S): ");
+    scanf("%f", &student->grades.U_S);
+    getchar();
+
+    student->average = (student->grades.Programming +
+                        student->grades.Purposive_com +
+                        student->grades.U_S) / 3.0f;
+}
+
+void edit_student_info(struct student_info *students, int count) {
+    int student_index;
+    char choice[10];
+
+    while (1) {
+        printf("\nDo you want to edit a student's info? (y/n): ");
+        fgets(choice, sizeof(choice), stdin);
+        
+        if (choice[0] != 'y' && choice[0] != 'Y') break;
+
+        printf("Enter the student number to edit (1 - %d): ", count);
+        scanf("%d", &student_index);
+        getchar();
+
+        if (student_index < 1 || student_index > count) {
+            printf("\n==[Invalid student number]==\n");
+            continue;
+        }
+
+        struct student_info *student = &students[student_index - 1];
+
+        printf("\nEditing Student %d:\n", student_index);
+        printf("1. Edit Name\n");
+        printf("2. Edit ID\n");
+        printf("3. Edit Grades\n");
+        printf("Enter your choice: ");
+        fgets(choice, sizeof(choice), stdin);
+
+        if (choice[0] == '1') {
+            student_name(student);
+        } else if (choice[0] == '2') {
+            student_number(student);
+        } else if (choice[0] == '3') {
+            input_grades(student);
+        } else {
+            printf("\n==[Invalid option]==\n");
+        }
+
+        printf("\nStudent info updated!\n");
+    }
+}
+
+void display_students(struct student_info *students, int count) {
+    printf("\n\n[ STUDENT RECORDS ] \n");
+    for (int i = 0; i < count; i++) {
+        printf("\nStudent %d:\n", i + 1);
+        printf("Name: %s\n", students[i].name);
+        printf("ID Number: %d\n", students[i].id);
+        printf("Grades:\n");
+        printf("    Computer Programming: %.2f\n", students[i].grades.Programming);
+        printf("    Purposive Communication: %.2f\n", students[i].grades.Purposive_com);
+        printf("    Understanding Self: %.2f\n", students[i].grades.U_S);
+        printf("Average Grade: %.2f\n", students[i].average);
+    }
+}
+
+void save_to_file(struct student_info *students, int count) {
+    FILE *file = fopen("students.txt", "w");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    fprintf(file, "[ STUDENT RECORDS ] \n");
+    for (int i = 0; i < count; i++) {
+        fprintf(file, "\nStudent %d:\n", i + 1);
+        fprintf(file, "Name: %s\n", students[i].name);
+        fprintf(file, "ID Number: %d\n", students[i].id);
+        fprintf(file, "Grades:\n");
+        fprintf(file, "    Computer Programming: %.2f\n", students[i].grades.Programming);
+        fprintf(file, "    Purposive Communication: %.2f\n", students[i].grades.Purposive_com);
+        fprintf(file, "    Understanding Self: %.2f\n", students[i].grades.U_S);
+        fprintf(file, "Average Grade: %.2f\n", students[i].average);
+    }
+
+    fclose(file);
+    printf("\nStudent records successfully saved to 'students.txt'.\n");
+
+    char view[10];
+    printf("Do you want to open and view the file now? (y/n): ");
+    fgets(view, sizeof(view), stdin);
+    if (view[0] == 'y' || view[0] == 'Y') {
+        FILE *readfile = fopen("students.txt", "r");
+        if (readfile == NULL) {
+            printf("Error opening file.\n");
+            return;
+        }
+        char line[256];
+        printf("\n<File Content>\n");
+        while (fgets(line, sizeof(line), readfile)) {
+            printf("%s", line);
+        }
+        fclose(readfile);
+    }
+}
+
+int main() {
+    struct student_info *student = NULL;
+    int count = 0;
+    int running = 1;
+    int student_count = 1;
+    char choice[10];
+    
+    while (running) {
+        printf("\n[ STUDENT RECORD SYSTEM ] \n");
+        printf("1. Add Student\n");
+        printf("2. Edit Student Info\n");
+        printf("3. View All Students\n");
+        printf("4. Save to File\n");
+        printf("5. Exit\n");
+        printf("Choose an option: ");
+        fgets(choice, sizeof(choice), stdin);
+
+        if (choice[0] == '1') {
+            student = realloc(student, (count + 1) * sizeof(struct student_info));
+            printf("\n Student Number: %d", student_count++) ;
+            student_name(&student[count]);
+            student_number(&student[count]);
+            input_grades(&student[count]);
+            count++;
+        } else if (choice[0] == '2') {
+            if (count == 0) {
+                printf("No students to edit yet.\n");
+            } else {
+                edit_student_info(student, count);
+            }
+        } else if (choice[0] == '3') {
+            if (count == 0) {
+                printf("No student records yet.\n");
+            } else {
+                display_students(student, count);
+            }
+        } else if (choice[0] == '4') {
+            if (count == 0) {
+                printf("No student records to save.\n");
+            } else {
+                save_to_file(student, count);
+            }
+        } else if (choice[0] == '5') {
+            printf("Exiting program. Byebye!\n");
+            running = 0;
+        } else {
+            printf("Invalid option. Please try again.\n");
+        }
+    }
+
+    free(student);
+    return 0;
+}
